@@ -1,0 +1,7 @@
+package: api
+generate:
+  models: true
+  client: true
+  server: true
+  types: true
+output: migrator.gen.go

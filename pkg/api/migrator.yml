@@ -1,0 +1,223 @@
+openapi: "3.0.2"
+info:
+  title: "Migrator API"
+  description: |
+    This API enables stuff.
+  version: "1.0"
+  termsOfService: "https://tos/terms"
+  contact:
+    name: "Store API"
+    url: "https://devops-migrator.schroders.com/api"
+    email: "andrew.ward2@schroders.com"
+servers:
+  - url: https://devops-migrator.schroders.com/v1
+    description: Development server
+security:
+  - OpenId:
+      - migrator/project.read
+      - migrator/project.write
+      - migrator/migrate.read
+      - migrator/migrate.write
+paths:
+  /migrate:
+    post:
+      summary: "Run a migration."
+      description: "Execute a migration (and create)."
+      operationId: ExecuteMigration
+      security:
+        - OpenId: [migrator/migrate.write]
+      tags:
+        - migrate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMigration'
+      responses:
+        '201':
+          description: migrate created response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Migration'
+    put:
+      summary: "Create a migration."
+      description: "Create a migration."
+      operationId: NewMigration
+      security:
+        - OpenId: [migrator/migrate.write]
+      tags:
+        - migrate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewMigration'
+      responses:
+        '201':
+          description: migrate created response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Migration'
+    get:
+      summary: "Get a list of migrations."
+      operationId: Migration
+      description: "Return a list of migrations."
+      security:
+        - OpenId: [migrator/migrate.read]
+      tags:
+        - migrate
+      parameters:
+        - $ref: '#/components/parameters/q'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        '200':
+          description: migration response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationsPage'
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            read: Grants read access
+            write: Grants write access
+            admin: Grants access to admin operations
+  parameters:
+    q:
+      name: q
+      in: query
+      description: Used to query by name in a list operation.
+      schema:
+        type: string
+        default: ""
+    offset:
+      name: offset
+      in: query
+      description: Used to request the next page in a list operation.
+      schema:
+        type: integer
+        format: int64
+        default: 0
+    limit:
+      name: limit
+      in: query
+      description: Used to specify the maximum number of records which are returned in the next page.
+      schema:
+        type: integer
+        format: int64
+        default: 50
+    filterIssues:
+      name: filter
+      in: query
+      style: pipeDelimited
+      explode: true
+      schema:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+  schemas:
+    NewMigration:
+      description: New Migration request.
+      required:
+        - name
+        - labels
+      properties:
+        name:
+          type: string
+          description: The name of the customer.
+          example: New Customer
+        description:
+          type: string
+          description:
+            A description of the customer, with some background.
+        contributorgroup:
+          type: string
+          description: The AAD Contributor Group
+          example: GBL ROL IT DevOps Project Contributor
+        managergroup:
+          type: string
+          description: The AAD Manager Group
+          example: GBL ROL IT DevOps Project Manager
+        sourcerepo:
+          type: string
+          description: The name of the source repository
+          example: Kubernetes-Build-Farm
+        targetrepo:
+          type: string
+          description: The name of the repository in GitHub
+          example: kubernetes-build-farm
+        targetrepoowner:
+          type: string
+          description: The GitHub username of the repo owner
+          example: warandr_schr
+        labels:
+          type: array
+          description: Labels assigned to an entity.
+          items:
+            type: string
+    UpdatedCustomer:
+      description: Update Customer request.
+      allOf:
+        - $ref: '#/components/schemas/NewMigration'
+        - required:
+            - version
+          properties:
+            version:
+              type: integer
+              format: int64
+    Migration:
+      description: Migration response.
+      type: object
+      required:
+        - id
+        - name
+        - labels
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          description: Migration identifier.
+          example: 0123456789ABCDEFGHJKMNPQRSTVWXYZ
+        name:
+          type: string
+          description: The name of the migration.
+          example: New Migration
+        description:
+          type: string
+          description:
+            A description of the migration, with some background.
+        labels:
+          type: array
+          description: Labels assigned to an entity.
+          items:
+            type: string
+        updated_at:
+          type: string
+          format: date-time
+          description: The timestamp the migration was last updated
+        created_at:
+          type: string
+          format: date-time
+          description: The timestamp the migration was created
+    MigrationsPage:
+      description: Migration page response.
+      required:
+        - migrations
+      properties:
+        migrations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Migration'

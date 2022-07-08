@@ -1,0 +1,6 @@
+{
+  "name" : "test",
+  "description" : "this is a tester",
+  "labels" : ["test", "nocomplete", "ado"],
+  "contributorgroup" : "DevOps Support"
+}
