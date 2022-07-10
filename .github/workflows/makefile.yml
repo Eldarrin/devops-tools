@@ -17,8 +17,14 @@ jobs:
     - name: configure
       run: make configure-ci
       
-    - name: Run check
-      run: make check
+    - name: Run fmt
+      run: make fmt
+
+    - name: Run vet
+      run: make vet
+
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v3
       
     - name: Run test_resources
       run: make test
