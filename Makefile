@@ -28,6 +28,10 @@ configure-dev: ## Configure the development environment
 		go mod download
 		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.46.2
 
+configure-ci: ## Configure the CI environment
+		go mod download
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b . v1.46.2
+
 #################################################
 # Development									#
 #################################################
