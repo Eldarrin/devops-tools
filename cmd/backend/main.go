@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/Eldarrin/devops-migrator/pkg/api"
-	"github.com/Eldarrin/devops-migrator/pkg/conf"
-	"github.com/Eldarrin/devops-migrator/pkg/server"
+	"github.com/Eldarrin/devops-tools/pkg/api"
+	"github.com/Eldarrin/devops-tools/pkg/conf"
+	"github.com/Eldarrin/devops-tools/pkg/server"
 	"github.com/labstack/echo/v4"
 	echolog "github.com/labstack/gommon/log"
 	"github.com/rs/zerolog/log"

@@ -13,9 +13,101 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/deepmap/oapi-codegen/pkg/runtime"
+	"github.com/labstack/echo/v4"
 )
+
+const (
+	OpenIdScopes = "OpenId.Scopes"
+)
+
+// Migration response.
+type Migration struct {
+	// The timestamp the migration was created
+	CreatedAt time.Time `json:"created_at"`
+
+	// A description of the migration, with some background.
+	Description *string `json:"description,omitempty"`
+
+	// Migration identifier.
+	Id string `json:"id"`
+
+	// Labels assigned to an entity.
+	Labels []string `json:"labels"`
+
+	// The name of the migration.
+	Name string `json:"name"`
+
+	// The timestamp the migration was last updated
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// Migration page response.
+type MigrationsPage struct {
+	Migrations []Migration `json:"migrations"`
+}
+
+// New Migration request.
+type NewMigration struct {
+	// The AAD Contributor Group
+	Contributorgroup *string `json:"contributorgroup,omitempty"`
+
+	// A description of the customer, with some background.
+	Description *string `json:"description,omitempty"`
+
+	// Labels assigned to an entity.
+	Labels []string `json:"labels"`
+
+	// The AAD Manager Group
+	Managergroup *string `json:"managergroup,omitempty"`
+
+	// The name of the customer.
+	Name string `json:"name"`
+
+	// The name of the source repository
+	Sourcerepo *string `json:"sourcerepo,omitempty"`
+
+	// The name of the repository in GitHub
+	Targetrepo *string `json:"targetrepo,omitempty"`
+
+	// The GitHub username of the repo owner
+	Targetrepoowner *string `json:"targetrepoowner,omitempty"`
+}
+
+// Limit defines model for limit.
+type Limit = int64
+
+// Offset defines model for offset.
+type Offset = int64
+
+// Q defines model for q.
+type Q = string
+
+// MigrationParams defines parameters for Migration.
+type MigrationParams struct {
+	// Used to query by name in a list operation.
+	Q *Q `form:"q,omitempty" json:"q,omitempty"`
+
+	// Used to request the next page in a list operation.
+	Offset *Offset `form:"offset,omitempty" json:"offset,omitempty"`
+
+	// Used to specify the maximum number of records which are returned in the next page.
+	Limit *Limit `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
+// ExecuteMigrationJSONBody defines parameters for ExecuteMigration.
+type ExecuteMigrationJSONBody = NewMigration
+
+// NewMigrationJSONBody defines parameters for NewMigration.
+type NewMigrationJSONBody = NewMigration
+
+// ExecuteMigrationJSONRequestBody defines body for ExecuteMigration for application/json ContentType.
+type ExecuteMigrationJSONRequestBody = ExecuteMigrationJSONBody
+
+// NewMigrationJSONRequestBody defines body for NewMigration for application/json ContentType.
+type NewMigrationJSONRequestBody = NewMigrationJSONBody
 
 // RequestEditorFn  is the function signature for the RequestEditor callback function
 type RequestEditorFn func(ctx context.Context, req *http.Request) error
@@ -565,4 +657,112 @@ func ParseNewMigrationResponse(rsp *http.Response) (*NewMigrationResponse, error
 	}
 
 	return response, nil
+}
+
+// ServerInterface represents all server handlers.
+type ServerInterface interface {
+	// Get a list of migrations.
+	// (GET /migrate)
+	Migration(ctx echo.Context, params MigrationParams) error
+	// Run a migration.
+	// (POST /migrate)
+	ExecuteMigration(ctx echo.Context) error
+	// Create a migration.
+	// (PUT /migrate)
+	NewMigration(ctx echo.Context) error
+}
+
+// ServerInterfaceWrapper converts echo contexts to parameters.
+type ServerInterfaceWrapper struct {
+	Handler ServerInterface
+}
+
+// Migration converts echo context to params.
+func (w *ServerInterfaceWrapper) Migration(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(OpenIdScopes, []string{"migrator/migrate.read"})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params MigrationParams
+	// ------------- Optional query parameter "q" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "q", ctx.QueryParams(), &params.Q)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter q: %s", err))
+	}
+
+	// ------------- Optional query parameter "offset" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "offset", ctx.QueryParams(), &params.Offset)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter offset: %s", err))
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", ctx.QueryParams(), &params.Limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter limit: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.Migration(ctx, params)
+	return err
+}
+
+// ExecuteMigration converts echo context to params.
+func (w *ServerInterfaceWrapper) ExecuteMigration(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(OpenIdScopes, []string{"migrator/migrate.write"})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.ExecuteMigration(ctx)
+	return err
+}
+
+// NewMigration converts echo context to params.
+func (w *ServerInterfaceWrapper) NewMigration(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(OpenIdScopes, []string{"migrator/migrate.write"})
+
+	// Invoke the callback with all the unmarshalled arguments
+	err = w.Handler.NewMigration(ctx)
+	return err
+}
+
+// This is a simple interface which specifies echo.Route addition functions which
+// are present on both echo.Echo and echo.Group, since we want to allow using
+// either of them for path registration
+type EchoRouter interface {
+	CONNECT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	DELETE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	GET(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	HEAD(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	OPTIONS(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	PATCH(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	POST(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	PUT(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+	TRACE(path string, h echo.HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route
+}
+
+// RegisterHandlers adds each server route to the EchoRouter.
+func RegisterHandlers(router EchoRouter, si ServerInterface) {
+	RegisterHandlersWithBaseURL(router, si, "")
+}
+
+// Registers handlers, and prepends BaseURL to the paths, so that the paths
+// can be served under a prefix.
+func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL string) {
+
+	wrapper := ServerInterfaceWrapper{
+		Handler: si,
+	}
+
+	router.GET(baseURL+"/migrate", wrapper.Migration)
+	router.POST(baseURL+"/migrate", wrapper.ExecuteMigration)
+	router.PUT(baseURL+"/migrate", wrapper.NewMigration)
+
 }

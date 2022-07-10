@@ -5,9 +5,9 @@ import (
 	"github.com/rs/zerolog/log"
 	"net/http"
 
-	"github.com/Eldarrin/devops-migrator/pkg/api"
-	"github.com/Eldarrin/devops-migrator/pkg/conf"
-	migGithub "github.com/Eldarrin/devops-migrator/pkg/github"
+	"github.com/Eldarrin/devops-tools/pkg/api"
+	"github.com/Eldarrin/devops-tools/pkg/conf"
+	migGithub "github.com/Eldarrin/devops-tools/pkg/github"
 	"github.com/labstack/echo/v4"
 )
 

@@ -1,4 +1,4 @@
-module github.com/Eldarrin/devops-migrator
+module github.com/Eldarrin/devops-tools
 
 go 1.17
 

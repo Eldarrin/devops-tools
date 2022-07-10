@@ -7,10 +7,10 @@ info:
   termsOfService: "https://tos/terms"
   contact:
     name: "Store API"
-    url: "https://devops-migrator.schroders.com/api"
+    url: "https://devops-tools.schroders.com/api"
     email: "andrew.ward2@schroders.com"
 servers:
-  - url: https://devops-migrator.schroders.com/v1
+  - url: https://devops-tools.schroders.com/v1
     description: Development server
 security:
   - OpenId:

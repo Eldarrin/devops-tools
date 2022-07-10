@@ -6,8 +6,8 @@ import (
 	"net/http/httputil"
 	"os"
 
-	"github.com/Eldarrin/devops-migrator/pkg/api"
-	"github.com/Eldarrin/devops-migrator/pkg/oidc"
+	"github.com/Eldarrin/devops-tools/pkg/api"
+	"github.com/Eldarrin/devops-tools/pkg/oidc"
 	"github.com/alecthomas/kingpin"
 	"github.com/motemen/go-loghttp"
 	"github.com/rs/zerolog/log"
@@ -19,7 +19,7 @@ var (
 
 	endpoint = app.Flag("endpoint", "The endpoint address of the migrator api.").Required().String()
 
-	auth = app.Flag("auth", "Use client credentials to authenticate to the api.").Required().Enum("clientcredentials")
+	//auth = app.Flag("auth", "Use client credentials to authenticate to the api.").Required().Enum("clientcredentials")
 
 	// required if you are using auth type "clientcredentials"
 	clientID     = app.Flag("client-id", "oauth2 client id used with openid.").Envar("OAUTH_CLIENT_ID").String()

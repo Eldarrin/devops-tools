@@ -9,7 +9,7 @@ import (
 
 const (
 	organizationUrl     = "https://dev.azure.com/eldarrin" // todo: replace value with your organization url
-	personalAccessToken = "XXXXXXXXXXXXXXXXXXXXXXX"            // todo: replace value with your PAT
+	personalAccessToken = "XXXXXXXXXXXXXXXXXXXXXXX"        // todo: replace value with your PAT
 )
 
 func CreateProject() {}
