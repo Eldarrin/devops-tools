@@ -4,8 +4,8 @@
 *.dll
 *.so
 *.dylib
-backend
-client
+/backend
+/client
 
 # Test binary, built with `go test -c`
 *.test

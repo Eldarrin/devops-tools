@@ -17,6 +17,17 @@ GOBIN				= $(shell go env GOBIN)
 endif
 
 #################################################
+# Configure the development environment			#
+#################################################
+
+##@ configure
+
+configure: configure-dev
+
+configure-dev: ## Configure the development environment
+		go mod download
+
+#################################################
 # Development									#
 #################################################
 
@@ -24,17 +35,19 @@ endif
 
 development: generate fmt vet golangci
 
-generate:
+check: fmt vet golangci
+
+generate: ## Generate APIs and echo server from OpenAPI spec
 		go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen \
 			-config pkg/api/config.yml pkg/api/migrator.yml
 
-fmt:
+fmt: ## fmt the code
 		go fmt ./...
 
-vet:
+vet: ## vet the code
 		go vet ./...
 
-golangci:
+golangci: ## lint the code
 		golangci-lint run ./...
 
 #################################################
@@ -43,22 +56,29 @@ golangci:
 
 ##@ build
 
-build: fmt vet golangci backend client docker-build
+build: check backend client docker-build
 
-backend:
+backend: ## compile the backend
 		go build -o backend cmd/backend/main.go
 
-client:
+client: ## compile the client
 		go build -o client cmd/client/main.go
 
-docker-build:
+docker-build: ## build the docker image
 		buildah build -t tools-backend .
+
+manifests: ## generate the kubernetes manifests
+
+
 
 #################################################
 # Test											#
 #################################################
 
 ##@ test
+
+test: ## run the tests
+		go test -v ./...
 
 ##@ test-cluster
 

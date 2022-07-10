@@ -1,7 +1,7 @@
 resources:
-  - bases/backend-service.yaml
-  - bases/backend-deployment.yaml
-  - bases/backend-service-account.yaml
-  - bases/backend-role.yaml
-  - bases/backend-role-binding.yaml
-  - bases/backend-ingress.yaml
+  - backend/backend-service.yaml
+  - backend/backend-deployment.yaml
+  - backend/backend-service-account.yaml
+  - backend/backend-role.yaml
+  - backend/backend-role-binding.yaml
+  - backend/backend-ingress.yaml

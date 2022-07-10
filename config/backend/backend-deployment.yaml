@@ -1,0 +1,24 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: devops-tools
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: "tools-backend:LATESTTAG"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
