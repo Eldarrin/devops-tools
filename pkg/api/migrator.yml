@@ -7,10 +7,10 @@ info:
   termsOfService: "https://tos/terms"
   contact:
     name: "Store API"
-    url: "https://devops-tools.schroders.com/api"
-    email: "andrew.ward2@schroders.com"
+    url: "https://devops-tools.eldarrin.io/api"
+    email: ""
 servers:
-  - url: https://devops-tools.schroders.com/v1
+  - url: https://devops-tools.eldarrin.io/v1
     description: Development server
 security:
   - OpenId:
