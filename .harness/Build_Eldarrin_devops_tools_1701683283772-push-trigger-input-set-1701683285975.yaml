@@ -1,0 +1,14 @@
+inputSet:
+  name: Build_Eldarrin_devops_tools_1701683283772-push-trigger-input-set
+  identifier: Build_Eldarrin_devops_tools_1701683283772pushtriggerinputset
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: Build_Eldarrin_devops_tools_1701683283772
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>
